@@ -89,7 +89,7 @@ The same container image can be used to run cron jobs as well.  It's two pieces:
 ### Run Script
 
 1) The run.sh file in this repo is a slightly modified version of [this](https://github.com/forseti-security/forseti-security/blob/dev/install/gcp/scripts/run_forseti.sh).
-2) You'll need to get the Cluster IP from the forseti-service and fill in that value on line 3
+2) You'll need to get the Cluster IP from the forseti-service and fill in that value on line 16
 3) Create configMap:
 ```
 kubectl create configmap forseti-job-script --from-file=run.sh
