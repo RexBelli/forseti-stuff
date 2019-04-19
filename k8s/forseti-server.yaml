@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forseti-server
+  labels:
+    app: forseti-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: forseti-server
+  template:
+    metadata:
+      labels:
+        app: forseti-server
+    spec:
+      containers:
+      - name: forseti-server
+        image: <image location>
+        command: ["/usr/local/bin/forseti_server"]
+        args: [
+          "--endpoint", 
+          "0.0.0.0:50051",
+          "--forseti_db", 
+          "mysql://$(SQL_USER):$(SQL_PASSWD)@127.0.0.1:3306/forseti_security",
+          "--services", 
+          "scanner", 
+          "model",
+          "inventory",
+          "explain",
+          "notifier",
+          "--config_file_path", 
+          "/config/forseti_conf_server.yaml",
+          "--log_level=warn",
+          "--enable_console_log"
+        ]
+        ports:
+        - containerPort: 50051
+        volumeMounts:
+        - mountPath: /config
+          name: server-config
+        - mountPath: /config/rules
+          name: rules
+        - name: gcp-service-account
+          mountPath: /secrets
+          readOnly: true
+        env:
+        - name: SQL_PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: forseti-server
+              key: sql_password
+        - name: SQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: forseti-server
+              key: sql_username
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /secrets/forseti-server.json
+      - name: cloudsql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.11
+        command: ["/cloud_sql_proxy",
+                  "-instances=<project>:<location>:<instance>=tcp:3306",
+                  "-credential_file=/secrets/forseti-server.json"]
+        securityContext:
+          runAsUser: 2  # non-root user
+          allowPrivilegeEscalation: false
+        volumeMounts:
+          - name: gcp-service-account
+            mountPath: /secrets
+            readOnly: true
+      volumes:
+      - configMap:
+          defaultMode: 0644
+          name: forseti-server-conf
+        name: server-config
+      - configMap:
+          defaultMode: 0644
+          name: forseti-rules
+        name: rules
+      - name: gcp-service-account
+        secret:
+          secretName: forseti-server-service-account

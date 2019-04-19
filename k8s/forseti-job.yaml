@@ -1,0 +1,25 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: forseti-job
+  labels:
+    app: forseti-job
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: forseti-job
+            image: <image location>
+            command: ["/script/run.sh"]
+            volumeMounts:
+            - mountPath: /script
+              name: job-script
+          volumes:
+          - configMap:
+              defaultMode: 0755
+              name: forseti-job-script
+            name: job-script
+          restartPolicy: Never
