@@ -83,7 +83,7 @@ kubectl create service clusterip forseti-server --tcp=50051
 # CronJob setup
 
 The same container image can be used to run cron jobs as well.  It's two pieces:
- - the connjob object
+ - the CronJob object
  - a script to run
 
 ### Run Script

@@ -6,3 +6,10 @@ Usage:
 - Clone https://github.com/forseti-security/forseti-security
 - Copy the Dockerfile here to that repo
 - Run `docker build -t forseti .`
+
+To store in GCR:
+```
+docker tag forseti gcr.io/<project>/forseti:latest
+docker push gcr.io/<project>/forseti:latest
+```
+

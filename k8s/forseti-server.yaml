@@ -31,7 +31,7 @@ spec:
           "notifier",
           "--config_file_path", 
           "/config/forseti_conf_server.yaml",
-          "--log_level=warn",
+          "--log_level=warning",
           "--enable_console_log"
         ]
         ports:
